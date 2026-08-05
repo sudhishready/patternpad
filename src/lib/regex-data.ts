@@ -49,6 +49,20 @@ export const commonPatterns: PatternExample[] = [
     flags: "g",
     sample: "order 42 shipped 3 items on day 7",
   },
+  {
+    name: "IPv4 address",
+    description: "matches ip addresses, doesnt validate ranges",
+    pattern: "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}",
+    flags: "g",
+    sample: "server is at 192.168.1.1 or 10.0.0.5",
+  },
+  {
+    name: "Username",
+    description: "letters, numbers, underscore, 3 to 16 chars",
+    pattern: "^[a-zA-Z0-9_]{3,16}$",
+    flags: "",
+    sample: "jordan_dev99",
+  },
 ]
 
 export type CheatRow = {
@@ -70,4 +84,9 @@ export const cheatsheet: CheatRow[] = [
   { token: "[abc]", meaning: "any of a, b or c" },
   { token: "(a|b)", meaning: "a or b" },
   { token: "(?:...)", meaning: "non capturing group" },
+  { token: "\\b", meaning: "word boundary" },
+  { token: "(?=...)", meaning: "lookahead" },
+  { token: "(?!...)", meaning: "negative lookahead" },
+  { token: "*?", meaning: "0 or more, lazy" },
+
 ]
