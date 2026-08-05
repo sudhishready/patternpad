@@ -136,3 +136,32 @@ export function RegexTester() {
                 ))}
               </div>
               <Separator />
+              <div>
+                <Label className="mb-2 block">test string</Label>
+                <Textarea
+                  value={testString}
+                  onChange={(e) => setTestString(e.target.value)}
+                  rows={5}
+                  className="font-mono"
+                />
+              </div>
+              <div>
+                <Label className="mb-2 block">result</Label>
+                <div className="rounded-md border bg-muted/30 p-3 font-mono text-sm whitespace-pre-wrap break-words">
+                  {highlighted.map((part, i) =>
+                    part.isMatch ? (
+                      <mark
+                        key={i}
+                        className="bg-yellow-300/60 rounded px-0.5 dark:bg-yellow-500/40"
+                      >
+                        {part.text}
+                      </mark>
+                    ) : (
+                      <span key={i}>{part.text}</span>
+                    )
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
