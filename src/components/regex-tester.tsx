@@ -19,7 +19,7 @@ import { commonPatterns, cheatsheet } from "@/lib/regex-data"
 
 type FlagKey = "g" | "i" | "m" | "s"
 export function RegexTester() {
-  const [pattern, setPattern] = useState("[\w.-]+@[\w.-]+\.\w+")
+  const [pattern, setPattern] = useState("[\\w.-]+@[\\w.-]+\\.\\w+")
   const [testString, setTestString] = useState(
     "contact me at jordan.dev@gmail.com or admin@site.io"
   )
@@ -165,3 +165,44 @@ export function RegexTester() {
             </CardContent>
           </Card>
         </TabsContent>
+        <TabsContent value="examples" className="mt-4">
+          <div className="grid gap-3">
+            {commonPatterns.map((ex) => (
+              <Card
+                key={ex.name}
+                className="cursor-pointer transition hover:border-foreground/40"
+                onClick={() => loadExample(ex.pattern, ex.flags, ex.sample)}
+              >
+                <CardHeader>
+                  <CardTitle className="text-base">{ex.name}</CardTitle>
+                  <CardDescription>{ex.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <code className="text-xs text-muted-foreground break-all">
+                    {ex.pattern}
+                  </code>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        <TabsContent value="cheatsheet" className="mt-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-[100px_1fr] gap-y-3 text-sm">
+                {cheatsheet.map((row) => (
+                  <div key={row.token} className="contents">
+                    <Badge variant="secondary" className="font-mono w-fit">
+                      {row.token}
+                    </Badge>
+                    <span className="text-muted-foreground">{row.meaning}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  )
+}
