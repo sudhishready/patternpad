@@ -49,3 +49,36 @@ export function RegexTester() {
     }
     return Array.from(testString.matchAll(regex))
   }, [regex, testString, flagString])
+  const highlighted = useMemo(() => {
+    if (!regex || matches.length === 0) {
+      return [{ text: testString, isMatch: false }]
+    }
+    const parts: { text: string; isMatch: boolean }[] = []
+    let lastIndex = 0
+    for (const m of matches) {
+      const start = m.index ?? 0
+      const end = start + m[0].length
+      if (start > lastIndex) {
+        parts.push({ text: testString.slice(lastIndex, start), isMatch: false })
+      }
+      parts.push({ text: testString.slice(start, end), isMatch: true })
+      lastIndex = end
+    }
+    if (lastIndex < testString.length) {
+      parts.push({ text: testString.slice(lastIndex), isMatch: false })
+    }
+    return parts
+  }, [matches, testString, regex])
+  function toggleFlag(key: FlagKey) {
+    setFlags((prev) => ({ ...prev, [key]: !prev[key] }))
+  }
+  function loadExample(p: string, f: string, sample: string) {
+    setPattern(p)
+    setTestString(sample)
+    setFlags({
+      g: f.includes("g"),
+      i: f.includes("i"),
+      m: f.includes("m"),
+      s: f.includes("s"),
+    })
+  }
