@@ -16,6 +16,10 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Separator } from "@/components/ui/separator"
 import { commonPatterns, cheatsheet } from "@/lib/regex-data"
+import { Button } from "@/components/ui/button"
+import { explainPattern } from "@/lib/regex-explain"
+import { usePatternHistory } from "@/lib/use-pattern-history"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 type FlagKey = "g" | "i" | "m" | "s"
 export function RegexTester() {
@@ -29,6 +33,8 @@ export function RegexTester() {
     m: false,
     s: false,
   })
+
+  const { history, addEntry, clearHistory } = usePatternHistory()
 
   const flagString = useMemo(() => {
     return (Object.keys(flags) as FlagKey[]).filter((k) => flags[k]).join("")
@@ -69,6 +75,10 @@ export function RegexTester() {
     }
     return parts
   }, [matches, testString, regex])
+  const explanation = useMemo(() => {
+    if (!pattern) return []
+    return explainPattern(pattern)
+  }, [pattern])
   function toggleFlag(key: FlagKey) {
     setFlags((prev) => ({ ...prev, [key]: !prev[key] }))
   }
@@ -82,19 +92,32 @@ export function RegexTester() {
       s: f.includes("s"),
     })
   }
+  function loadHistoryEntry(p: string, f: string) {
+    setPattern(p)
+    setFlags({
+      g: f.includes("g"),
+      i: f.includes("i"),
+      m: f.includes("m"),
+      s: f.includes("s"),
+    })
+  }
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">patternpad</h1>
-        <p className="text-muted-foreground mt-1">
-          test your regex live, no more guessing in the console
-        </p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">patternpad</h1>
+          <p className="text-muted-foreground mt-1">
+            test your regex live, no more guessing in the console
+          </p>
+        </div>
+        <ThemeToggle />
       </div>
       <Tabs defaultValue="tester">
         <TabsList>
           <TabsTrigger value="tester">tester</TabsTrigger>
           <TabsTrigger value="examples">examples</TabsTrigger>
           <TabsTrigger value="cheatsheet">cheatsheet</TabsTrigger>
+          <TabsTrigger value="history">history</TabsTrigger>
         </TabsList>
         <TabsContent value="tester" className="mt-4">
           <Card>
@@ -120,6 +143,12 @@ export function RegexTester() {
                   className="font-mono"
                 />
                 <span className="text-muted-foreground text-lg">/{flagString}</span>
+                <Button
+                  variant="secondary"
+                  onClick={() => addEntry(pattern, flagString)}
+                >
+                  save
+                </Button>
               </div>
               <div className="flex flex-wrap gap-4">
                 {(["g", "i", "m", "s"] as FlagKey[]).map((key) => (
@@ -162,6 +191,21 @@ export function RegexTester() {
                   )}
                 </div>
               </div>
+              {explanation.length > 0 && (
+                <div>
+                  <Label className="mb-2 block">what this means</Label>
+                  <div className="grid grid-cols-[100px_1fr] gap-y-2 text-sm">
+                    {explanation.map((tok, i) => (
+                      <div key={i} className="contents">
+                        <Badge variant="secondary" className="font-mono w-fit">
+                          {tok.token}
+                        </Badge>
+                        <span className="text-muted-foreground">{tok.meaning}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -201,6 +245,42 @@ export function RegexTester() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="history" className="mt-4">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-muted-foreground text-sm">
+              patterns you saved, stored in your browser
+            </p>
+            {history.length > 0 && (
+              <Button variant="ghost" size="sm" onClick={clearHistory}>
+                clear all
+              </Button>
+            )}
+          </div>
+          {history.length === 0 ? (
+            <p className="text-muted-foreground text-sm">
+              nothing saved yet, hit save next to a pattern to keep it here
+            </p>
+          ) : (
+            <div className="grid gap-3">
+              {history.map((entry) => (
+                <Card
+                  key={entry.savedAt}
+                  className="cursor-pointer transition hover:border-foreground/40"
+                  onClick={() => loadHistoryEntry(entry.pattern, entry.flags)}
+                >
+                  <CardHeader>
+                    <CardTitle className="font-mono text-base">
+                      /{entry.pattern}/{entry.flags}
+                    </CardTitle>
+                    <CardDescription>
+                      {new Date(entry.savedAt).toLocaleString()}
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
