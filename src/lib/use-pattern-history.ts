@@ -44,5 +44,29 @@ export function usePatternHistory() {
     window.localStorage.removeItem(STORAGE_KEY)
   }
 
-  return { history, addEntry, clearHistory }
+  function exportHistory() {
+    return JSON.stringify(history, null, 2)
+  }
+
+  function importHistory(json: string): boolean {
+    try {
+      const parsed = JSON.parse(json)
+      if (!Array.isArray(parsed)) return false
+      const valid = parsed.every(
+        (entry) =>
+          typeof entry.pattern === "string" &&
+          typeof entry.flags === "string" &&
+          typeof entry.savedAt === "number"
+      )
+      if (!valid) return false
+      setHistory(parsed)
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed))
+      return true
+    } catch {
+      return false
+    }
+  }
+
+
+  return { history, addEntry, clearHistory, exportHistory, importHistory }
 }
