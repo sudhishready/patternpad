@@ -82,3 +82,57 @@ export function RegexTester() {
       s: f.includes("s"),
     })
   }
+  return (
+    <div className="mx-auto max-w-3xl px-4 py-10">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">patternpad</h1>
+        <p className="text-muted-foreground mt-1">
+          test your regex live, no more guessing in the console
+        </p>
+      </div>
+      <Tabs defaultValue="tester">
+        <TabsList>
+          <TabsTrigger value="tester">tester</TabsTrigger>
+          <TabsTrigger value="examples">examples</TabsTrigger>
+          <TabsTrigger value="cheatsheet">cheatsheet</TabsTrigger>
+        </TabsList>
+        <TabsContent value="tester" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>your pattern</CardTitle>
+              <CardDescription>
+                {error ? (
+                  <span className="text-red-500">{error}</span>
+                ) : (
+                  <span>
+                    {matches.length} match{matches.length === 1 ? "" : "es"} found
+                  </span>
+                )}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-lg">/</span>
+                <Input
+                  value={pattern}
+                  onChange={(e) => setPattern(e.target.value)}
+                  placeholder="enter your regex pattern"
+                  className="font-mono"
+                />
+                <span className="text-muted-foreground text-lg">/{flagString}</span>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                {(["g", "i", "m", "s"] as FlagKey[]).map((key) => (
+                  <div key={key} className="flex items-center gap-2">
+                    <Switch
+                      id={`flag-${key}`}
+                      checked={flags[key]}
+                      onCheckedChange={() => toggleFlag(key)}
+                    />
+                    <Label htmlFor={`flag-${key}`} className="font-mono">
+                      {key}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              <Separator />
