@@ -40,6 +40,7 @@ export function RegexTester() {
   const [shareStatus, setShareStatus] = useState("share link")
   const [importText, setImportText] = useState("")
   const [importMessage, setImportMessage] = useState<string | null>(null)
+  const [batchInput, setBatchInput] = useState("")
   useEffect(() => {
     const shared = readShareParams()
     if (!shared) return
@@ -163,6 +164,17 @@ const { history, addEntry, clearHistory, exportHistory, importHistory } = usePat
     setImportMessage(ok ? "imported!" : "that didn't look right")
     if (ok) setImportText("")
   }
+  const batchResults = useMemo(() => {
+    const lines = batchInput.split("\n").filter((l) => l.trim().length > 0)
+    return lines.map((line) => {
+      try {
+        const re = new RegExp(pattern, flagString.replace("g", ""))
+        return { line, pass: re.test(line) }
+      } catch {
+        return { line, pass: false }
+      }
+    })
+  }, [batchInput, pattern, flagString])
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <div className="mb-8 flex items-start justify-between gap-4">
@@ -178,6 +190,7 @@ const { history, addEntry, clearHistory, exportHistory, importHistory } = usePat
         <TabsList>
           <TabsTrigger value="tester">tester</TabsTrigger>
         <TabsTrigger value="replace">replace</TabsTrigger>
+          <TabsTrigger value="batch">batch</TabsTrigger>
           <TabsTrigger value="examples">examples</TabsTrigger>
           <TabsTrigger value="cheatsheet">cheatsheet</TabsTrigger>
           <TabsTrigger value="history">history</TabsTrigger>
@@ -325,6 +338,40 @@ const { history, addEntry, clearHistory, exportHistory, importHistory } = usePat
           </CardContent>
         </Card>
       </TabsContent>
+        <TabsContent value="batch" className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>batch test</CardTitle>
+              <CardDescription>
+                test the pattern against a bunch of lines at once
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label className="mb-2 block">test lines</Label>
+                <Textarea
+                  value={batchInput}
+                  onChange={(e) => setBatchInput(e.target.value)}
+                  placeholder="one test case per line"
+                  className="font-mono min-h-32"
+                />
+              </div>
+              <p className="text-muted-foreground text-sm">
+                {batchResults.filter((r) => r.pass).length} / {batchResults.length} lines matched
+              </p>
+              <div className="grid gap-2">
+                {batchResults.map((r, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-md border p-2 font-mono text-sm">
+                    <span className={r.pass ? "text-green-500" : "text-red-500"}>
+                      {r.pass ? "pass" : "fail"}
+                    </span>
+                    <span className="truncate">{r.line}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
         <TabsContent value="examples" className="mt-4">
           <div className="grid gap-3">
             {commonPatterns.map((ex) => (
